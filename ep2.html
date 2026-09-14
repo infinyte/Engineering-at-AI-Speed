@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building a World Around a Terrible API | Engineering at AI Speed</title><meta name="description" content="Catalogs, worlds, snapshots, and the vocabulary of an integration environment you can trust.">
+<link rel="canonical" href="https://infinyte.github.io/Engineering-at-AI-Speed/ep2.html"><meta property="og:title" content="Building a World Around a Terrible API">
+<meta property="og:description" content="Catalogs, worlds, snapshots, and the vocabulary of an integration environment you can trust."><meta property="og:type" content="article">
+<meta property="og:url" content="https://infinyte.github.io/Engineering-at-AI-Speed/ep2.html"><meta property="og:image" content="https://infinyte.github.io/Engineering-at-AI-Speed/assets/social-cover.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta property="og:image:alt" content="Engineering at AI Speed. Implementation became cheap before alignment did.">
+<meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="Engineering at AI Speed" href="feed.xml"><link rel="stylesheet" href="assets/style.css">
+</head><body style="--episode-accent:#5eead4"><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
+<nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
+<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">Episode 02</p><h1>Building a World Around a Terrible API</h1><p class="dek">Catalogs, worlds, snapshots, and the vocabulary of an integration environment you can trust.</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="2026-09-14">September 14, 2026</time> <span>·</span> 8 min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p><a href="#start-with-the-job">Start with the job</a><a href="#the-data-and-the-setup">The data and the setup</a><a href="#the-catalog-defines-the-starting-environment">The catalog defines the starting environment</a><a href="#the-world-is-the-running-state">The world is the running state</a><a href="#the-snapshot-captures-a-position">The snapshot captures a position</a><a href="#the-operator-provides-the-controls">The operator provides the controls</a><a href="#how-the-pieces-fit-together">How the pieces fit together</a><a href="#the-emulator-still-needs-evidence">The emulator still needs evidence</a><a href="#the-benchmark-measures-a-particular-experiment">The benchmark measures a particular experiment</a><a href="#give-the-agent-the-architecture">Give the agent the architecture</a></aside><article class="prose"><p>The assignment sounds simple: call an API, ingest the data, and make it useful in a new application.</p>
+<p>Then you meet the API.</p>
+<p>It is inconsistent enough that writing the integration also means figuring out which behavior you can depend on. You need somewhere to test your assumptions, reproduce failures, and measure whether your ingestion strategy is making progress.</p>
+<p>Eventually, you find yourself building an emulator, a benchmarking harness, and a simulation environment.</p>
+<p>You started out trying to import some records. Now you’re discussing how to create a world.</p>
+<p>That is a reasonable engineering response to a difficult dependency. But it introduces a vocabulary that deserves more care than we usually give it.</p>
+<p>Dataset. Seed. Fixture. Scenario. Catalog. World. Snapshot. Operator.</p>
+<p>These words describe different responsibilities. Understanding them makes the architecture easier to reason about—and gives an AI agent a much better chance of building what you intended.</p>
+<h2 id="start-with-the-job">Start with the job</h2>
+<p>Imagine an ingestion test with these requirements: begin with known inventory records, retrieve them through the API, make an update visible during the import, fail a request, and verify that recovery finishes without losing records or creating duplicates.</p>
+<p>Then run the same exercise again.</p>
+<p>A file full of sample JSON supplies part of the setup. We also need behavior, state, timing, controls, and a way to judge the result.</p>
+<p>Each additional term gives a name to one of those responsibilities.</p>
+<h2 id="the-data-and-the-setup">The data and the setup</h2>
+<p>A <strong>dataset</strong> is a collection of data. It might contain inventory records, locations, products, or captured API responses. It can be raw, cleaned, curated, or generated. The word does not tell us how a running system will behave.</p>
+<p><strong>Seed data</strong> establishes an initial population. It might be three records or a substantial starting database.</p>
+<p>A <strong>random seed</strong> initializes a pseudorandom generator. Under the same generator and conditions, it can help reproduce generated values. It does not, by itself, make an entire test deterministic.</p>
+<p>That distinction matters when someone says, “Use the same seed.”</p>
+<p>A <strong>fixture</strong> establishes known conditions for a test. It can include data, configuration, an initialized service, and cleanup afterward.</p>
+<p>A <strong>scenario</strong> describes the situation being exercised: the starting conditions, actions, environmental changes, and expected outcomes.</p>
+<p>For our example, the dataset contains the records. The fixture prepares the environment. The scenario describes the update and failure during the run.</p>
+<p>These concepts can overlap in a framework’s implementation. Keeping their responsibilities distinct still helps us describe what we need.</p>
+<h2 id="the-catalog-defines-the-starting-environment">The catalog defines the starting environment</h2>
+<p>In our repository, a <strong>catalog</strong> is a curated definition used to create a runtime environment.</p>
+<p>It contains authored business data and the starting model for what we call a world. “Load the showcase catalog” means selecting source material from which the environment can be initialized.</p>
+<p>Think of it as an exercise blueprint. It might define facilities, inventory records, and relationships that make a particular integration case meaningful. The definition can be reused to create separate runtime instances.</p>
+<p><strong>The catalog is the definition layer; the world is the instantiated state.</strong></p>
+<p>The name is local to this project. Elsewhere, a catalog might describe products, services, database metadata, or datasets. Calling something a catalog does not universally mean “simulation blueprint.”</p>
+<p>A starting-state definition also does not necessarily describe everything that happens during a scenario. A scenario can reference a catalog and separately specify actions, timing, and injected failures.</p>
+<h2 id="the-world-is-the-running-state">The world is the running state</h2>
+<p>A <strong>world</strong>, in our repository, is the instantiated runtime environment. It contains the state against which requests operate, and that state may change as the exercise proceeds.</p>
+<p>If the model includes delayed updates, queued work, or a controllable clock, those are relevant parts of the world too. They influence what a client observes, even when they are not visible in a response body.</p>
+<p>“World” is useful because the environment is richer than a bag of records. But the name does not automatically establish isolation, determinism, or completeness. Those capabilities need specification and verification.</p>
+<p>Two worlds created from the same catalog might start with equivalent business data. Whether they also receive identical identifiers, clock values, and schedules depends on initialization.</p>
+<p>That detail becomes important the moment a test depends on it.</p>
+<figure><img src="assets/world.svg" alt="A catalog initializes a world; snapshots capture and restore state; the operator manages the running environment." loading="lazy"><figcaption>A catalog initializes a world; snapshots capture and restore state; the operator manages the running environment.</figcaption></figure>
+<h2 id="the-snapshot-captures-a-position">The snapshot captures a position</h2>
+<p>A <strong>snapshot</strong> is a captured representation of state at a particular point. In our repository, that means a serialized representation of a world.</p>
+<p>We might capture it immediately after initialization or halfway through an exercise. An initial state is still a state; a snapshot need not wait until a world has evolved.</p>
+<p>The useful questions concern scope: what did we save, what can we restore, and what remains outside the snapshot?</p>
+<p>Saving inventory records while omitting pending updates can restore the visible data without restoring the conditions that caused the next failure. Saving a clock value while restarting background work differently can change what happens next.</p>
+<p>A snapshot supports restoration within its defined boundary. <strong>Exact replay is a stronger requirement.</strong></p>
+<p>Replay may also require inputs, timing, random choices, a fault schedule, and compatible implementation versions. Recorded HTTP exchanges provide useful examples, but they do not automatically model every new sequence a client might attempt. <a href="https://wiremock.org/docs/record-playback/">WireMock: Record and Playback</a>.</p>
+<p>Think of a flight simulator: a saved position tells us where the aircraft was. Reproducing the remainder of the exercise also requires the conditions and events that affected the flight.</p>
+<p>A <strong>virtual clock</strong> lets a test advance modeled time explicitly. Components must use that clock for their time-dependent behavior to be controlled. .NET’s <code>FakeTimeProvider</code> supports this approach. <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/timeprovider-testing?tabs=dotnet-cli">Microsoft: Testing with FakeTimeProvider</a>.</p>
+<h2 id="the-operator-provides-the-controls">The operator provides the controls</h2>
+<p>Our repository calls its management interface the <strong>operator</strong>. It supports loading and unloading worlds, advancing the clock, exporting documents, and inspecting state.</p>
+<p>This is the environment’s control surface.</p>
+<p>The importer uses the API it is integrating against. The test harness uses the management interface to arrange the surrounding conditions. Those are different responsibilities and access boundaries.</p>
+<p>The broader architectural term is <strong>control plane</strong>: the mechanisms used to configure and manage the environment.</p>
+<p>“Operator” remains our chosen name. It should not imply that we implement the Kubernetes Operator pattern, which has a specific meaning involving custom resources and a control loop. <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/operator/">Kubernetes: Operator pattern</a>.</p>
+<h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Concept</th><th scope="col">Responsibility</th></tr></thead><tbody><tr><td>Dataset</td><td>Supplies a collection of data</td></tr><tr><td>Seed data</td><td>Initializes a population</td></tr><tr><td>Fixture</td><td>Establishes known test conditions</td></tr><tr><td>Scenario</td><td>Describes the exercise</td></tr><tr><td>Catalog</td><td>Defines reusable starting material for a world</td></tr><tr><td>World</td><td>Holds the instantiated runtime state</td></tr><tr><td>Snapshot</td><td>Captures state within a defined scope</td></tr><tr><td>Operator</td><td>Manages and inspects the runtime environment</td></tr></tbody></table></div>
+<p>A fixture can create a world from a catalog. A scenario can drive requests and introduce failures. The operator can advance time or capture a snapshot. A later test can restore that snapshot, provided it understands what restoration guarantees.</p>
+<p>These are different parts of how the environment is assembled and operated.</p>
+<h2 id="the-emulator-still-needs-evidence">The emulator still needs evidence</h2>
+<p>An <strong>emulator</strong> aims to reproduce relevant externally observable behavior so the integration can use it as a substitute. A <strong>simulator</strong> models behavior under specified conditions. The same environment can serve both purposes, and terminology varies among tools.</p>
+<p>Giving the environment a rich model does not establish that it behaves like the provider.</p>
+<p>For each important behavior, distinguish:</p>
+<ul><li><strong>Documented:</strong> The provider says this is how it works.</li><li><strong>Observed:</strong> We captured evidence that it behaved this way.</li><li><strong>Assumed:</strong> We modeled it without sufficient confirmation.</li></ul>
+<p>An assumption can be useful for testing. It should remain visible as an assumption.</p>
+<p><strong>Characterization tests</strong> capture existing behavior. <strong>Differential tests</strong> compare systems under equivalent inputs and relevant conditions. A <strong>test oracle</strong> determines whether an outcome is acceptable. A captured response, specification, or invariant can contribute to that judgment.</p>
+<p>A <strong>corpus</strong> collects test material; <strong>provenance</strong> records where it came from and how it was transformed.</p>
+<p>Matching a captured response establishes something narrower than supporting an entire workflow. “Parity achieved” should identify what was compared and what remains unsupported.</p>
+<p>A beautiful model can be consistently wrong. Evidence connects it to the difficult dependency we started with.</p>
+<h2 id="the-benchmark-measures-a-particular-experiment">The benchmark measures a particular experiment</h2>
+<p>A <strong>harness</strong> prepares and runs the experiment. A <strong>workload</strong> describes the work presented to the system. A <strong>benchmark</strong> measures performance under stated conditions.</p>
+<p>For ingestion, useful measurements include successfully committed records per second, duplicate counts, completeness, retry volume, and memory use.</p>
+<p><strong>Latency</strong> measures elapsed time for a defined operation; <strong>throughput</strong> measures completed work per unit time. A p95 or p99 describes a percentile of the measured latency distribution, so the population and measurement boundary matter.</p>
+<p>The environment makes measurements repeatable and defines their limits. An emulator that responds immediately does not tell us how an importer will perform against a slow provider. Advancing a virtual clock by an hour does not measure an hour of production throughput.</p>
+<p>Workload generation matters as well. An open model schedules arrivals independently of completion; a closed model waits for existing work to finish. Choosing the wrong model can hide the effects of a slowdown. <a href="https://grafana.com/docs/k6/latest/using-k6/scenarios/concepts/open-vs-closed/">Grafana k6: Open and closed models</a>.</p>
+<p>Name both what you controlled and what you measured.</p>
+<h2 id="give-the-agent-the-architecture">Give the agent the architecture</h2>
+<p>“Generate some test data and mock the API” leaves most of this design implicit.</p>
+<p>A more useful assignment is:</p>
+<blockquote><p>Use the inventory catalog to create an isolated world. Run the importer through the emulated API. During the scenario, make an update visible between page requests and inject one recoverable failure. Verify completeness and absence of duplicate destination entities. Capture the starting state and execution details needed to reproduce the result.</p></blockquote>
+<p>That makes responsibilities visible. It also exposes unresolved questions: what counts as a duplicate, what makes a failure recoverable, and which execution details must be captured?</p>
+<p>Answering those questions before generation is usually cheaper than discovering incompatible answers in the resulting code.</p>
+<p>The catalog defines the starting material. The world holds the running state. The snapshot captures a position. The operator provides the controls.</p>
+<p>Once those responsibilities are clear, we can ask better questions about the system—and get more useful code back.</p><nav class="episode-navigation" aria-label="Episode navigation"><a href="ep1.html"><span>Previous · Episode 01</span>When Words Become Code</a><a href="index.html#episodes"><span>Continue the series</span>See what’s coming next</a></nav></article></div></main>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© 2026 Kurt Mitchell</span></div></footer>
+</body></html>

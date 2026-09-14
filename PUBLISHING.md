@@ -1,6 +1,6 @@
 # Publishing the series
 
-This is a static GitHub Pages publication. The prologue and Episode 1 are the launch release. Future episode titles and descriptions are intentionally public; their manuscripts are prepared outside the public repository.
+This is a static GitHub Pages publication. The prologue and Episodes 1–2 are published. Future episode titles and descriptions are intentionally public; their manuscripts are prepared outside the public repository.
 
 ## Season boundaries
 

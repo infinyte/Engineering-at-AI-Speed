@@ -20,6 +20,12 @@ class PublicationTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.site = Path(self.temp.name) / "site"
         shutil.copytree(ROOT, self.site, ignore=shutil.ignore_patterns(".git", "__pycache__"))
+        # Test release transitions against a fixed launch fixture, independent
+        # of how many episodes the real publication has subsequently released.
+        manifest = json.loads((self.site / "series.json").read_text(encoding="utf-8"))
+        for episode in manifest["episodes"][2:]:
+            episode.update(status="draft", date="")
+        (self.site / "series.json").write_text(json.dumps(manifest), encoding="utf-8")
 
     def build(self):
         result = subprocess.run([sys.executable, "build.py"], cwd=self.site,

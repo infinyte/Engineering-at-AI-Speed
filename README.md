@@ -12,7 +12,7 @@ A series by Kurt Mitchell about terminology, requirements, integration, architec
 
 This repository follows the small static publication model used by [Pattern Mirror](https://github.com/infinyte/Pattern-Mirror). Python generates the root HTML pages from Markdown manuscripts; GitHub Pages serves `main` from `/`. No server, database, JavaScript framework, or Python packages are required.
 
-The initial release includes the prologue and Episode 1. Future manuscripts and editorial plans are maintained outside this public repository until release. A `draft` or `planned` episode appears as Coming soon without an article link. Dates are editorial metadata, not a scheduler.
+The prologue and Episodes 1–2 are published. Future manuscripts and editorial plans are maintained outside this public repository until release. A `draft` or `planned` episode appears as Coming soon without an article link. Dates are editorial metadata, not a scheduler.
 
 **This repository is public.** Keep unreleased manuscripts and editorial notes outside it. A draft status hides an article from site navigation; it is not an access control.
 
