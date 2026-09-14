@@ -1,0 +1,26 @@
+name: Verify publication
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Publication acceptance tests
+        run: python -m unittest discover -s tests -v
+      - name: Build and validate
+        run: |
+          python build.py
+          python verify.py
+      - name: Confirm generated output is committed
+        run: |
+          git diff --exit-code
+          test -z "$(git ls-files --others --exclude-standard)"

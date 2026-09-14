@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When Words Become Code | Engineering at AI Speed</title><meta name="description" content="A product catalog, a product registry, and the architecture hiding inside a name.">
+<link rel="canonical" href="https://infinyte.github.io/Engineering-at-AI-Speed/ep1.html"><meta property="og:title" content="When Words Become Code">
+<meta property="og:description" content="A product catalog, a product registry, and the architecture hiding inside a name."><meta property="og:type" content="article">
+<meta property="og:url" content="https://infinyte.github.io/Engineering-at-AI-Speed/ep1.html"><meta property="og:image" content="https://infinyte.github.io/Engineering-at-AI-Speed/assets/social-cover.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta property="og:image:alt" content="Engineering at AI Speed. Implementation became cheap before alignment did.">
+<meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="Engineering at AI Speed" href="feed.xml"><link rel="stylesheet" href="assets/style.css">
+</head><body style="--episode-accent:#60a5fa"><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
+<nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
+<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">Episode 01</p><h1>When Words Become Code</h1><p class="dek">A product catalog, a product registry, and the architecture hiding inside a name.</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="2026-09-14">September 14, 2026</time> <span>·</span> 7 min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p><a href="#a-catalog-can-have-ids-a-registry-can-be-searchable">A catalog can have IDs. A registry can be searchable.</a><a href="#the-disagreement-existed-before-the-code">The disagreement existed before the code</a><a href="#the-same-problem-appears-inside-a-test-environment">The same problem appears inside a test environment</a><a href="#put-shared-meaning-where-the-agent-can-use-it">Put shared meaning where the agent can use it</a><a href="#examples-make-definitions-testable">Examples make definitions testable</a><a href="#a-small-practice-before-the-next-implementation">A small practice before the next implementation</a><a href="#engineering-at-ai-speed">Engineering at AI speed</a></aside><article class="prose"><p>We wanted a searchable collection of products.</p>
+<p>Specifically, products in our inventory, potentially expanded to include products appearing in inventory across other cannabis retailers. Something people could browse, search, classify, and use to understand what was available.</p>
+<p>People kept calling it a <strong>global product registry</strong>.</p>
+<p>That sounds reasonable. A collection of products, somewhere central. Registry. Catalog. Close enough.</p>
+<p>Except those words can send an implementation in very different directions.</p>
+<p>Tell an AI agent to build a global product registry, and it might reasonably start defining canonical product identities, registration workflows, ownership, lifecycle states, and uniqueness constraints. It might decide how conflicting registrations get resolved and which record is authoritative.</p>
+<p>Meanwhile, the person who requested it was thinking: <em>Can I search the products these stores carry?</em></p>
+<p>Both interpretations are understandable. They describe different systems.</p>
+<blockquote><p>Before AI, a terminology disagreement often produced a meeting. Now it can produce a database schema.</p></blockquote>
+<h2 id="a-catalog-can-have-ids-a-registry-can-be-searchable">A catalog can have IDs. A registry can be searchable.</h2>
+<p>There is no universal law that makes every catalog nonauthoritative or every registry a governed source of truth.</p>
+<p>These words have different histories across domains. Catalogs can contain canonical identifiers. Registries can support browsing and discovery. A product can legitimately need both sets of capabilities.</p>
+<p>The problem is the expectations a name brings into the conversation.</p>
+<p><strong>Catalog</strong> generally suggests a collection organized for discovery, classification, or lookup. <strong>Registry</strong> can suggest registration, identity, authority, ownership, and lifecycle management.</p>
+<p>Those implications are questions to resolve. They are not requirements that a word magically settles.</p>
+<figure><img src="assets/interpretation.svg" alt="One ambiguous request can produce a searchable catalog or an identity registry. Both interpretations can generate reasonable code." loading="lazy"><figcaption>One ambiguous request can produce a searchable catalog or an identity registry. Both interpretations can generate reasonable code.</figcaption></figure>
+<p>For our product collection, the useful questions are concrete:</p>
+<ul><li>Are we showing retailer listings, or asserting that listings from different retailers represent the same product?</li><li>Do we preserve each source’s identifiers, or issue a canonical identity?</li><li>Who decides whether two similar products are actually the same?</li><li>Does inclusion mean “observed in someone’s inventory” or “officially registered”?</li><li>What does “available” mean, and how recently was it observed?</li></ul>
+<p>The answers determine the data model.</p>
+<p>An aggregate catalog might preserve source records and timestamps, with product matching treated as a separate capability. An authoritative registry might require enrollment rules and a process for resolving identity conflicts.</p>
+<p>Changing the table name later will not reconcile those decisions.</p>
+<h2 id="the-disagreement-existed-before-the-code">The disagreement existed before the code</h2>
+<p>Software development has always involved translating between people who understand different parts of a problem.</p>
+<p>A product owner describes an outcome. An engineer asks what happens when something fails. Someone notices that “customer” means an individual in one system and an organization in another. A database discussion reveals that two departments disagree about who owns a record.</p>
+<p>Somewhere in that process, the requirement becomes more precise.</p>
+<p>It did not always happen gracefully. Sometimes it happened in the third meeting that should have been an email. Sometimes implementation simply took long enough for someone to ask the obvious question.</p>
+<p>AI compresses the distance between <strong>idea, interpretation, and implementation</strong>. An assumption can become code before the people involved discover that it was an assumption.</p>
+<p>Consider two people independently asking agents to implement parts of the same product system. One treats a product as a retailer’s listing. The other treats it as a canonical entity shared across retailers.</p>
+<p>Each agent can produce consistent code. Each test suite can pass. Integration exposes the disagreement because the systems disagree about what a product is.</p>
+<p>The causal chain is straightforward: ambiguous meaning produces different implementations; those implementations embody different architectures; integration inherits the cost.</p>
+<p>A naming disagreement can become an architectural fork before anyone realizes the disagreement existed.</p>
+<h2 id="the-same-problem-appears-inside-a-test-environment">The same problem appears inside a test environment</h2>
+<p>The terminology issue also surfaced in our work integrating against an inconsistent API.</p>
+<p>“Mock the API” sounds like a reasonable starting point. It leaves unresolved whether the replacement should return prepared JSON, remember state, reproduce pagination, or let us control when an update becomes visible.</p>
+<p>Established testing vocabulary helps make the request more precise:</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Term</th><th scope="col">Primary responsibility</th></tr></thead><tbody><tr><td>Test double</td><td>Replaces a production dependency for testing</td></tr><tr><td>Stub</td><td>Supplies configured answers</td></tr><tr><td>Mock</td><td>Verifies expected interactions</td></tr><tr><td>Spy</td><td>Records interactions for inspection</td></tr><tr><td>Fake</td><td>Provides a working implementation with simplifying shortcuts</td></tr></tbody></table></div>
+<p>These distinctions come from the widely used Meszaros/Fowler taxonomy. Tools and teams sometimes use the names more loosely, so describing the required behavior remains essential. <a href="https://martinfowler.com/bliki/TestDouble.html">Martin Fowler: Test Double</a>.</p>
+<p>If the test only needs a payload for deserialization, a stub may be sufficient. If it needs inventory state to evolve across requests, the replacement needs stateful behavior. If it needs to reproduce a timing-sensitive failure, it needs control over relevant timing as well.</p>
+<p>The architecture follows the required behavior. “Mock” alone does not specify it.</p>
+<p>The next episode develops that example through the vocabulary of catalogs, worlds, snapshots, and operators. The general lesson starts here: a familiar noun can conceal several implementation decisions.</p>
+<h2 id="put-shared-meaning-where-the-agent-can-use-it">Put shared meaning where the agent can use it</h2>
+<p>For a consequential term, write down four things:</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Question</th><th scope="col">What the answer establishes</th></tr></thead><tbody><tr><td>What does it mean here?</td><td>The concept people intend</td></tr><tr><td>What does it own or guarantee?</td><td>The responsibility</td></tr><tr><td>What must the name not imply?</td><td>The boundary</td></tr><tr><td>How will we verify it?</td><td>The acceptance evidence</td></tr></tbody></table></div>
+<p>For the product example, an initial definition might read:</p>
+<blockquote><p>Product catalog: a searchable aggregation of product listings observed in retailer inventory. Preserve source identifiers and observation timestamps. Inclusion does not establish an authoritative cross-retailer product identity. Canonical identity and registration workflows require a separate decision.</p></blockquote>
+<p>That paragraph gives an agent useful constraints. It also gives a human reviewer a chance to catch disagreement before it becomes a schema.</p>
+<p>It does not solve product matching, availability, or every future requirement. It makes the current boundary explicit so those questions can be addressed deliberately.</p>
+<p>Place the definition near the work: in the feature brief, domain documentation, or repository guidance that the agent reads. Keep one authoritative definition and link to it from related tasks. Otherwise, three slightly different copies can recreate the same disagreement.</p>
+<p>When the meaning changes, update the definition and inspect the contracts and tests that depend on it. Renaming a class is only part of the change.</p>
+<h2 id="examples-make-definitions-testable">Examples make definitions testable</h2>
+<p>Abstract agreement can disappear as soon as someone provides an example.</p>
+<p>Suppose two retailers use the same local product identifier. Are those records duplicates? If identifiers are scoped to a retailer, they are not duplicates merely because the strings match.</p>
+<p>Suppose two listings have the same name and package size but different source identifiers. Should the system merge them? A searchable collection does not, on its own, answer that identity question.</p>
+<p>Suppose a product appeared in inventory yesterday. Does the catalog still describe it as available today? The definition needs an observation or freshness rule before a display can make that claim responsibly.</p>
+<p>Those examples are acceptance criteria waiting to be written.</p>
+<p>An AI agent can generate both the implementation and tests based on the same mistaken assumption. A passing suite then establishes internal agreement. It does not establish that the interpretation matches the business need.</p>
+<p>Use examples agreed upon outside that generated implementation. Ask the agent to explain what it believes each example means before the change expands across the repository.</p>
+<h2 id="a-small-practice-before-the-next-implementation">A small practice before the next implementation</h2>
+<p>Before assigning a substantial feature, identify the few terms that could change the architecture if interpreted differently.</p>
+<p>Ask the implementer—human or AI—to restate those meanings and give a boundary example. Review that interpretation while it is still a paragraph.</p>
+<p>Then connect the accepted definition to the design and tests. The terminology becomes useful because it shapes observable behavior.</p>
+<p>This does not require a terminology committee. It requires enough agreement to distinguish the system we want from another system that would also fit the words.</p>
+<h2 id="engineering-at-ai-speed">Engineering at AI speed</h2>
+<p>AI has expanded who can turn an idea into working software. A product owner, analyst, designer, or engineer can now explore an implementation directly.</p>
+<p>That is an enormous capability. The translation work that engineers traditionally performed needs to become more explicit and accessible as a result.</p>
+<p>Questions about identity, ownership, failure, consistency, and evidence still need answers. The ability to generate code does not answer them automatically.</p>
+<p>Agree on the consequential terms. Make assumptions visible. Define the boundaries. Give the agent acceptance criteria that reflect the business intent. Review the interpretation before the implementation becomes expensive to unwind.</p>
+<p><strong>When natural language can turn directly into software, terminology becomes part of the architecture.</strong></p>
+<p>A few precise sentences at the beginning can change where you end up.</p><nav class="episode-navigation" aria-label="Episode navigation"><a href="ep0.html"><span>Previous · Prologue</span>Implementation Is Cheap. Alignment Isn’t.</a><a href="index.html#episodes"><span>Continue the series</span>See what’s coming next</a></nav></article></div></main>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© 2026 Kurt Mitchell</span></div></footer>
+</body></html>

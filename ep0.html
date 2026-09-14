@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implementation Is Cheap. Alignment Isn’t. | Engineering at AI Speed</title><meta name="description" content="The premise of the series: implementation accelerated. Shared understanding still takes work.">
+<link rel="canonical" href="https://infinyte.github.io/Engineering-at-AI-Speed/ep0.html"><meta property="og:title" content="Implementation Is Cheap. Alignment Isn’t.">
+<meta property="og:description" content="The premise of the series: implementation accelerated. Shared understanding still takes work."><meta property="og:type" content="article">
+<meta property="og:url" content="https://infinyte.github.io/Engineering-at-AI-Speed/ep0.html"><meta property="og:image" content="https://infinyte.github.io/Engineering-at-AI-Speed/assets/social-cover.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta property="og:image:alt" content="Engineering at AI Speed. Implementation became cheap before alignment did.">
+<meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="Engineering at AI Speed" href="feed.xml"><link rel="stylesheet" href="assets/style.css">
+</head><body style="--episode-accent:#fbbf24"><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
+<nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
+<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">Prologue</p><h1>Implementation Is Cheap. Alignment Isn’t.</h1><p class="dek">The premise of the series: implementation accelerated. Shared understanding still takes work.</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="2026-09-14">September 14, 2026</time> <span>·</span> 4 min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p><a href="#the-interpretation-arrives-before-the-code">The interpretation arrives before the code</a><a href="#some-friction-was-carrying-information">Some friction was carrying information</a><a href="#more-people-can-implement">More people can implement</a><a href="#what-this-series-will-examine">What this series will examine</a><a href="#keep-the-speed-improve-the-direction">Keep the speed. Improve the direction.</a></aside><article class="prose"><p>There used to be a fairly dependable pause between having an idea for software and having a substantial amount of software to inspect.</p>
+<p>Someone described the feature. Someone else tried to understand it. An engineer asked what “complete” meant, which system owned the data, and what should happen if the third step failed. Eventually, the implementation took shape.</p>
+<p>That pause could be frustrating. We spent years trying to shorten it.</p>
+<p>Now an AI agent can turn a brief description into changes across a repository while the conversation about the requirement is still happening.</p>
+<p>That is an extraordinary capability. It also changes where misunderstandings become expensive.</p>
+<h2 id="the-interpretation-arrives-before-the-code">The interpretation arrives before the code</h2>
+<p>A request never goes straight from language to implementation without interpretation. Someone—or something—decides what the words mean.</p>
+<p>“Build a product registry” might mean a searchable collection of product listings. It might mean an authoritative system for registering products and assigning identities. Those interpretations lead to different data models, APIs, workflows, and tests.</p>
+<p>The agent can produce reasonable code for either one.</p>
+<p>The important question is whether the interpretation matches the intent shared by the people who will use and maintain the system.</p>
+<p>AI makes implementation cheaper. It does not automatically make that agreement cheaper.</p>
+<blockquote><p>Implementation became cheap before alignment did.</p></blockquote>
+<p>This is the central idea behind Engineering at AI Speed.</p>
+<h2 id="some-friction-was-carrying-information">Some friction was carrying information</h2>
+<p>Traditional development contained a mixture of waste and useful work. A meeting could be a pointless delay. It could also be the place where two teams discovered that they used the word “customer” differently.</p>
+<p>A design discussion might drag on. It might also reveal that nobody had decided who owned a record or how an interrupted workflow would resume.</p>
+<p>Slow work never guaranteed good engineering. Teams have always been capable of spending months building the wrong thing. But the time and effort involved created opportunities to expose disagreement before it spread through an implementation.</p>
+<p>When we remove those delays, the information they sometimes carried still matters.</p>
+<p>We need practical ways to make assumptions visible, establish boundaries, and decide what evidence will count as success. Those activities should happen early enough to shape the generated work.</p>
+<h2 id="more-people-can-implement">More people can implement</h2>
+<p>The ability to create working software is becoming accessible to people who previously depended on an engineer to translate their ideas into code.</p>
+<p>A product owner can explore a workflow. An analyst can build a tool around a recurring problem. A designer can make an interaction work instead of merely describing it. Experienced engineers can cover ground that used to demand a much larger investment.</p>
+<p>That is worth taking seriously as an opportunity.</p>
+<p>It also makes the translation work more important: interpreting requirements, preserving architectural consistency, planning failure behavior, and deciding how to verify the result.</p>
+<p>That work needs to be accessible to everyone participating in implementation. A team needs clear ownership of architectural decisions even when many people can generate changes.</p>
+<h2 id="what-this-series-will-examine">What this series will examine</h2>
+<p>The episodes follow a progression from language to operating practice.</p>
+<p>We start with terminology, because a word can quietly become a schema. Then we examine a concrete integration problem: building a controlled environment around an inconsistent API. That work introduces useful distinctions between data, setup, runtime state, saved state, and management controls.</p>
+<p>From there, we look at the functions that development friction performed, how to write a requirement that can survive interpretation, and why two internally correct implementations can fail when joined together.</p>
+<p>The later episodes address ownership, executable architectural constraints, and review throughout the development process.</p>
+<p>Each article starts with a specific engineering situation and ends with a practice readers can use. The examples are intended to make the decisions visible. Hypothetical failure sequences will be identified as examples rather than presented as incidents that happened.</p>
+<h2 id="keep-the-speed-improve-the-direction">Keep the speed. Improve the direction.</h2>
+<p>The goal is to help teams use AI effectively while preserving the reasoning that makes software coherent.</p>
+<p>Agree on consequential terms. Record the assumptions. Identify failure conditions. Define acceptance criteria. Generate work in increments that can be understood and verified.</p>
+<p>The useful practices can be small. A paragraph defining a product catalog may prevent a week of unwinding identity infrastructure nobody requested. A test for interrupted ingestion may expose a data-loss assumption before it reaches production.</p>
+<p>You can now reach the wrong destination at 200 mph.</p>
+<p>A few precise sentences at the beginning can change where you end up.</p>
+<p>The first episode starts with one of those sentences: “Build a global product registry.”</p><nav class="episode-navigation" aria-label="Episode navigation"><a href="ep1.html"><span>Next · Episode 01</span>When Words Become Code</a></nav></article></div></main>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© 2026 Kurt Mitchell</span></div></footer>
+</body></html>
