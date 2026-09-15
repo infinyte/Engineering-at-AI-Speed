@@ -31,7 +31,7 @@ def page(config, title, description, filename, content, accent="#60a5fa"):
 <header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
 <nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
 {content}
-<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© {date.fromisoformat(config['episodes'][0]['date']).year} Kurt Mitchell</span></div></footer>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="index.html#episodes">Engineering at AI Speed — All episodes</a><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">Also by Kurt: The Pattern Mirror</a><span>© {date.fromisoformat(config['episodes'][0]['date']).year} Kurt Mitchell</span></div></footer>
 </body></html>'''
 
 
