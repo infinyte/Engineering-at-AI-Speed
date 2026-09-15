@@ -105,6 +105,16 @@ class PublicationTests(unittest.TestCase):
         self.build()
         self.assertEqual(first, {p.name: p.read_bytes() for p in self.site.glob("*.html")})
 
+    def test_field_guide_uses_its_standalone_title_and_scope(self):
+        self.build()
+        guide = (self.site / "reference.html").read_text(encoding="utf-8")
+        title = "The Vocabulary of AI-Era Engineering: A Field Guide"
+        self.assertIn(f"<h1>{title}</h1>", guide)
+        self.assertIn(f'<meta property="og:title" content="{title}">', guide)
+        self.assertIn("requirements, architecture, verification, and review", guide)
+        home = (self.site / "index.html").read_text(encoding="utf-8")
+        self.assertIn("Vocabulary for AI-era engineering.", home)
+
     def test_error_page_links_work_from_a_nested_missing_url(self):
         self.build()
         error_page = (self.site / "404.html").read_text(encoding="utf-8")

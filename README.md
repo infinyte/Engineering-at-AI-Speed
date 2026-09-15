@@ -7,6 +7,7 @@ A series by Kurt Mitchell about terminology, requirements, integration, architec
 - Website: https://infinyte.github.io/Engineering-at-AI-Speed/
 - Start here: https://infinyte.github.io/Engineering-at-AI-Speed/ep0.html
 - Feed: https://infinyte.github.io/Engineering-at-AI-Speed/feed.xml
+- Field guide: [The Vocabulary of AI-Era Engineering: A Field Guide](https://infinyte.github.io/Engineering-at-AI-Speed/reference.html)
 
 ## Publication model
 

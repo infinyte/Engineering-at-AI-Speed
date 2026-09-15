@@ -1,4 +1,4 @@
-# The integration field guide
+# The Vocabulary of AI-Era Engineering: A Field Guide
 
 Names are useful when their boundaries are clear. This companion to Engineering at AI Speed covers the language of integration environments, requirements, shared identity, architecture, and review throughout the series.
 
