@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Friction We Lost | Engineering at AI Speed</title><meta name="description" content="Some development friction was carrying information. Preserve its useful functions.">
+<link rel="canonical" href="https://infinyte.github.io/Engineering-at-AI-Speed/ep3.html"><meta property="og:title" content="The Friction We Lost">
+<meta property="og:description" content="Some development friction was carrying information. Preserve its useful functions."><meta property="og:type" content="article">
+<meta property="og:url" content="https://infinyte.github.io/Engineering-at-AI-Speed/ep3.html"><meta property="og:image" content="https://infinyte.github.io/Engineering-at-AI-Speed/assets/social-cover.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta property="og:image:alt" content="Engineering at AI Speed. Implementation became cheap before alignment did.">
+<meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="Engineering at AI Speed" href="feed.xml"><link rel="stylesheet" href="assets/style.css">
+</head><body style="--episode-accent:#c4b5fd"><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
+<nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
+<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">Episode 03</p><h1>The Friction We Lost</h1><p class="dek">Some development friction was carrying information. Preserve its useful functions.</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="2026-09-14">September 14, 2026</time> <span>·</span> 9 min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p><a href="#the-conversation-used-to-have-more-places-to-happen">The Conversation Used to Have More Places to Happen</a><a href="#some-friction-was-carrying-information">Some Friction Was Carrying Information</a><a href="#waiting-does-not-produce-understanding">Waiting Does Not Produce Understanding</a><a href="#what-was-the-old-process-actually-doing">What Was the Old Process Actually Doing?</a><a href="#replace-the-missing-conversation-in-the-importer-example">Replace the Missing Conversation in the Importer Example</a><a href="#a-checkpoint-needs-to-change-something">A Checkpoint Needs to Change Something</a><a href="#scale-the-process-to-the-decision">Scale the Process to the Decision</a><a href="#run-a-friction-audit">Run a Friction Audit</a><a href="#make-the-useful-work-intentional">Make the Useful Work Intentional</a></aside><article class="prose"><p><em>Engineering at AI Speed · Episode 3</em></p>
+<p><strong>Some development friction was carrying information. What happens when we remove the delay but still need the conversation?</strong></p>
+<p>Imagine asking an AI agent to add resumable ingestion to an application.</p>
+<p>The request sounds straightforward: import the records, save progress, and pick up where you left off if the process stops.</p>
+<p>The agent gets to work. It adds a progress table, updates the import loop, writes tests, and produces a working implementation.</p>
+<p>Then someone reviewing the change asks: “What happens if the records are saved, but the process crashes before progress is updated?”</p>
+<p>Good question.</p>
+<p>Someone else asks the inverse: “What happens if progress is updated before the records are safely saved?”</p>
+<p>Also a good question.</p>
+<p>The answers affect whether the importer repeats work or skips it. They belong in the design of resumability. But in this example, they arrive after the implementation.</p>
+<p>The code got there before the conversation did.</p>
+<h2 id="the-conversation-used-to-have-more-places-to-happen">The Conversation Used to Have More Places to Happen</h2>
+<p>In a more manual workflow, that question might have surfaced while an engineer investigated the existing importer. It might have come up during a design discussion, test planning, or a conversation with whoever owned the destination database.</p>
+<p>There were several opportunities to notice that “save progress” concealed a decision about failure behavior.</p>
+<p>None of those opportunities guaranteed that someone would ask. Traditional development has an impressive history of taking a long time to get things wrong.</p>
+<p>But implementation consumed enough effort that investigation and coordination often happened along the way.</p>
+<p>AI changes that relationship. An agent can make implementation choices and express them in code while people are still deciding what the request means.</p>
+<p>The uncertainty has not disappeared. It has acquired an implementation.</p>
+<p>In the first episode, we looked at how an ambiguous word can become architecture. In the second, we used a difficult API integration to distinguish the data, setup, runtime state, and controls in a test environment.</p>
+<p>Now we need to examine the process around those decisions: where did we used to discover that we disagreed, and what replaces that discovery when implementation accelerates?</p>
+<h2 id="some-friction-was-carrying-information">Some Friction Was Carrying Information</h2>
+<p>“Reduce friction” has been a sensible objective for a long time.</p>
+<p>Slow builds, repetitive setup, confusing deployment procedures, and unnecessary handoffs consume time that could go toward useful work. There is no virtue in making an engineer wait forty minutes for feedback that could arrive in forty seconds.</p>
+<p>But development friction was a mixed bag.</p>
+<p>A meeting might be a calendar obligation with no useful outcome. It might also be the place where the person who understood a failure mode finally met the person changing the system.</p>
+<p>A design document might be written once and ignored forever. It might also force its author to notice that two requirements could not both be satisfied.</p>
+<p>A code review might obsess over formatting. It might also reveal that a locally reasonable change violates a guarantee another component depends on.</p>
+<p>The visible activity and its useful function are different things.</p>
+<blockquote><p>Some friction was carrying information.</p></blockquote>
+<p>If we remove an activity, we should understand whether it was doing useful work—and where that work will happen afterward.</p>
+<h2 id="waiting-does-not-produce-understanding">Waiting Does Not Produce Understanding</h2>
+<p>A ticket sitting in a queue is not becoming more precise.</p>
+<p>A pull request waiting three days for review is not accumulating architectural insight through exposure to office air.</p>
+<p>Time only helps when something useful happens inside it: a question is asked, a dependency is investigated, an assumption is challenged, or a decision is made.</p>
+<p>That distinction matters because the wrong response to AI speed is to insert an arbitrary pause and call the process safer.</p>
+<p>What would we expect to learn during that pause? Who needs to contribute? What decision might change because of the answer?</p>
+<p>If we cannot answer those questions, the pause is difficult to justify.</p>
+<p>The goal is to make useful inquiry deliberate. Development should not depend on an engineer happening to discover a consequential assumption while doing something else.</p>
+<h2 id="what-was-the-old-process-actually-doing">What Was the Old Process Actually Doing?</h2>
+<p>Before replacing a development step, examine the function it performed when it worked well.</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Familiar activity</th><th scope="col">Useful function it sometimes performed</th><th scope="col">A lighter way to preserve that function</th></tr></thead><tbody><tr><td>Requirements discussion</td><td>Exposed different interpretations of the request</td><td>Record the intended outcome and one boundary example; have the relevant people resolve disagreement</td></tr><tr><td>Design review</td><td>Made consequential choices visible</td><td>Write a short decision note for changes involving ownership, persistence, contracts, or failure behavior</td></tr><tr><td>Implementation investigation</td><td>Revealed dependencies and existing conventions</td><td>Have the agent identify the relevant system boundaries and cite the code it inspected before making changes</td></tr><tr><td>Test planning</td><td>Asked how the feature could fail</td><td>Choose a representative failure case and define the expected outcome before implementation expands</td></tr><tr><td>Integration handoff</td><td>Reconciled assumptions between components</td><td>Exercise one shared example across the boundary early</td></tr><tr><td>Code review</td><td>Challenged the implementation against intent</td><td>Review a bounded change alongside its decisions and evidence</td></tr></tbody></table></div>
+<p>These are possible replacements, not six mandatory steps for every task.</p>
+<p>The point is to identify what we need to learn and arrange a direct way to learn it.</p>
+<p>A short written exchange can resolve a decision. A meeting can be the most efficient option when several people hold different parts of the answer. The format should serve the question.</p>
+<h2 id="replace-the-missing-conversation-in-the-importer-example">Replace the Missing Conversation in the Importer Example</h2>
+<p>Return to resumable ingestion.</p>
+<p>Before asking for the complete implementation, ask the agent to explain where destination writes become durable, where progress is recorded, and what happens if the process stops between those events.</p>
+<p>That explanation should reference the existing system. A generic paragraph about reliable imports is not enough.</p>
+<p>Suppose the agent proposes saving records and then recording progress. It should make the consequence explicit: a crash between those operations may cause the same records to be processed again.</p>
+<p>Now we can ask the important question: is repeated processing safe in this application?</p>
+<p>The answer might depend on identifiers, uniqueness rules, updates, or side effects. Writing the same business record twice might also trigger a notification twice. “We handle duplicates” needs a boundary.</p>
+<p>If the proposed design records progress first, ask how it prevents a crash from causing unsaved records to be skipped.</p>
+<p>There may be a transaction boundary that solves part of the problem. There may be a design based on safe reprocessing and reconciliation. The right choice depends on the systems involved.</p>
+<p>We do not need to resolve every distributed-systems question before making progress. We need to resolve the question that determines what “resume” means here.</p>
+<p>Then exercise a narrow case: interrupt the import at the relevant boundary, restart it, and inspect the resulting records and effects.</p>
+<p>The sequence becomes:</p>
+<p><strong>Request → expose the recovery assumption → decide the guarantee → demonstrate one interrupted run → expand the implementation.</strong></p>
+<p>That is a useful replacement for the conversation that might once have happened incidentally during several days of coding.</p>
+<h2 id="a-checkpoint-needs-to-change-something">A Checkpoint Needs to Change Something</h2>
+<p>There is a danger in turning this advice into another checklist that everyone completes without thinking.</p>
+<p>“Agent described the approach.” Check.</p>
+<p>“Risks considered.” Check.</p>
+<p>“Tests included.” Check.</p>
+<p>An agent can produce plausible text for all three. The presence of those sections does not establish that a consequential question was answered.</p>
+<p>A useful checkpoint has a question, an owner, and a consequence.</p>
+<p>The <strong>question</strong> identifies the uncertainty. The <strong>owner</strong> is someone responsible for resolving it, with access to the relevant knowledge. The <strong>consequence</strong> explains how the answer changes the work.</p>
+<p>For the importer, the question is whether repeated processing is safe. The answer may change the persistence strategy, the side-effect handling, and the acceptance test.</p>
+<p>If the answer could never alter the implementation, ask whether the checkpoint is serving a purpose.</p>
+<h2 id="scale-the-process-to-the-decision">Scale the Process to the Decision</h2>
+<p>Correcting a heading, adjusting spacing, and changing a checkpoint strategy should not require the same ceremony.</p>
+<p>The amount of explicit coordination should follow the uncertainty and the consequences of being wrong.</p>
+<p>Look especially closely when a change affects persisted data, shared interfaces, access boundaries, ownership, or behavior during failure. Those decisions tend to involve assumptions that extend beyond the immediate code.</p>
+<p>A small, reversible presentation change may need a preview and a focused check. A change to how several systems identify the same entity deserves a conversation about the meaning of that identity.</p>
+<p>This also applies to exploration. Sometimes the fastest way to understand an uncertain requirement is to build a disposable prototype. Make its assumptions and status clear, and evaluate what it taught you before adopting it into the system.</p>
+<p>Fast experiments are useful. Treating their unresolved decisions as settled architecture is where the trouble starts.</p>
+<h2 id="run-a-friction-audit">Run a Friction Audit</h2>
+<p>Take one recurring development activity that your team has shortened, removed, or largely delegated to AI.</p>
+<p>Ask four questions:</p>
+<ol><li><strong>What useful information did this activity sometimes uncover?</strong></li><li><strong>Where does that information surface in our current process?</strong></li><li><strong>What is the smallest explicit action that would expose it earlier?</strong></li><li><strong>How will we tell whether that action helped?</strong></li></ol>
+<p>Keep the answer concrete.</p>
+<p>“Improve communication” gives nobody a next step.</p>
+<p>“Before changes to import recovery, identify the write/checkpoint boundary and agree on the result of a crash between them” does.</p>
+<p>Try the replacement on a real change. Did it expose an assumption? Did the answer change the design? Did it prevent a disagreement from spreading into more code? Or did it add work without revealing anything useful?</p>
+<p>Adjust accordingly. A process should be open to evidence about its own usefulness.</p>
+<h2 id="make-the-useful-work-intentional">Make the Useful Work Intentional</h2>
+<p>AI gives us an opportunity to change the economics of implementation. We can explore more options, create working examples sooner, and automate work that used to consume substantial effort.</p>
+<p>The conversations about meaning and consequences still matter.</p>
+<p>Some used to happen because the work took long enough for people to cross paths. Some happened because implementation forced someone to investigate. Some never happened at all.</p>
+<p>We can improve on that arrangement.</p>
+<p>Identify the information the team needs. Make the consequential assumptions visible. Resolve them with the people who understand their effects. Ask for evidence while the implementation is still small enough to change easily.</p>
+<p><strong>Keep the speed. Give the important questions a reliable place to happen.</strong></p>
+<p>In the next episode, we will make that practical at the point of assignment: what needs to be in a request before “implement this” becomes a useful instruction?</p><nav class="episode-navigation" aria-label="Episode navigation"><a href="ep2.html"><span>Previous · Episode 02</span>Building a World Around a Terrible API</a><a href="index.html#episodes"><span>Continue the series</span>See what’s coming next</a></nav></article></div></main>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© 2026 Kurt Mitchell</span></div></footer>
+</body></html>
