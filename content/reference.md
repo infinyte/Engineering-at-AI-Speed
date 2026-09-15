@@ -40,7 +40,6 @@ Start with [domain meaning and identity](#domain-meaning-and-identity), [interfa
 | Integration boundary | The point where separately implemented components exchange data or depend on each other's behavior. Shared meaning is part of the agreement at that boundary. |
 | Distributed system | Components on separate processes or machines that coordinate through communication. Partial failure and uncertain remote outcomes affect the guarantees they can make together. |
 | Ingestion / importer | Bringing source data into a destination for use. An importer implements that path, including the applicable retrieval, transformation, persistence, and progress behavior. |
-| Authentication / authorization | Authentication establishes an identity or credential claim; authorization determines which actions that identity may perform. Retrying a rejected credential does not resolve either policy. |
 | Concurrency | Multiple operations in progress over overlapping periods. Their ordering and interaction may affect state, failure behavior, and measurements. |
 | Control plane | Mechanisms that configure, coordinate, and manage a system. In the API environment, world lifecycle and clock controls belong here. |
 | Data plane | The path that performs the system's ordinary work under that configuration. In the example, importer requests to the emulated API use this path. |
@@ -50,6 +49,36 @@ Start with [domain meaning and identity](#domain-meaning-and-identity), [interfa
 | Compatibility / compatibility layer | Compatibility is the ability to keep required interactions working across implementations or versions. A compatibility layer mediates differences within a stated scope. |
 
 HTTP status semantics are defined by the protocol; recovery policy remains an application decision. [RFC 9110: 503 Service Unavailable](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.6.4).
+
+## Auth: authentication, authorization, or both?
+
+**Typically, auth can mean:** authentication, authorization, or an unspecified combination of identity and access features. It is shorthand whose intended scope needs clarification. The ambiguous use is not a third security operation; it is an unresolved meaning.
+
+![Auth branches into authentication (AuthN: establish identity), authorization (AuthZ: decide permitted actions), and ambiguous shorthand (either or both; clarify the scope).](assets/auth-meanings.svg)
+
+| Term | Working definition |
+|---|---|
+| Authentication / AuthN | Establishing the identity of a caller, such as a person, service, or agent. In the example, establish that a request comes from the inventory importer. |
+| Authorization / AuthZ | Determining whether a requested action on a resource is permitted under the applicable policy. The importer may be allowed to read North's inventory without permission to modify it or read South's. |
+| Auth, ambiguous shorthand | May refer to authentication, authorization, or the broader identity-and-access subsystem. “Add auth” does not specify which controls are required. |
+
+Prefer **authn** and **authz** in requirements and architectural guidance. If a team uses **auth** specifically for authentication, document that convention. An authenticated agent can still lack permission to perform an action; credentials, tool availability, and authorization are separate decisions. These abbreviations and responsibilities follow [Microsoft's authorization guidance](https://learn.microsoft.com/en-us/entra/identity-platform/authorization-basics).
+
+## Factory: what does it produce?
+
+**Typically, factory can mean:** code that creates configured objects, a repeatable software-production workflow, or infrastructure that runs AI workloads at scale. Specify the output, inputs, and acceptance checks before choosing an architecture from the name.
+
+![Factory branches into an object factory that constructs instances, an AI software factory that produces verified software artifacts, and an AI infrastructure factory that runs AI workloads at scale.](assets/factory-meanings.svg)
+
+| Term | Working definition |
+|---|---|
+| Object factory | Code responsible for constructing configured objects, such as an API client, an agent, or a test world. The broad term does not by itself specify the Factory Method or Abstract Factory design pattern. |
+| AI software factory, working meaning in this guide | An organized, repeatable workflow using AI-assisted or agent-driven work to turn specified needs into verified software artifacts, with explicit review and release controls. This is a declared working meaning, not a universal standard. |
+| AI infrastructure factory | An infrastructure-oriented use of the factory metaphor for compute, networking, storage, and software supporting AI workloads at scale. It does not necessarily describe a software-development workflow. |
+
+“AI factory” has no single meaning across the industry. [NVIDIA's AI factory description](https://www.nvidia.com/en-us/glossary/ai-factory/) emphasizes infrastructure, while [Microsoft Agent Factory](https://www.microsoft.com/en-gb/ai/agent-factory) names an offering for building and scaling agents. A product name does not establish a universal architectural definition.
+
+For the series' software-factory meaning, ask: **What does it produce, what enters the process, and what evidence makes an output acceptable?** Calling a workflow a factory does not establish autonomy, quality, or production readiness.
 
 ## Data, setup, and runtime
 
@@ -82,9 +111,13 @@ Later articles also use **operator** in its ordinary human sense: someone runnin
 
 ## Dependency replacements
 
+A **seam** makes substitution possible; a test double supplies the replacement behavior. A component boundary can be useful for integration without necessarily providing such a substitution mechanism.
+
 | Term | Working definition |
 |---|---|
 | Test double | Replacement for a production dependency used in testing. |
+| Seam | A point where a program's behavior can be varied or replaced without editing the code at that point. Useful for substituting dependencies, controlling time, or introducing test failures. |
+| Enabling point | The place where the behavior used at a seam is selected, such as dependency configuration or a build setting. |
 | Stub | Supplies configured responses. |
 | Mock | Verifies expected interactions. |
 | Spy | Records interactions for inspection. |
@@ -93,6 +126,8 @@ Later articles also use **operator** in its ordinary human sense: someone runnin
 | Simulator | Models behavior under specified conditions; can also provide an emulated interface. |
 
 The test-double distinctions follow the Meszaros/Fowler taxonomy. Product names may use “mock” more broadly. [Martin Fowler: Test Double](https://martinfowler.com/bliki/TestDouble.html).
+
+For the importer, a call through an API-client interface can provide a seam. Dependency configuration selects the real provider client or an emulator client while the importer's business logic stays the same. This follows [Michael Feathers' seam model](https://www.informit.com/articles/article.aspx?p=359417&seqNum=3). People also use “seam” loosely for a boundary between components or teams; clarify whether actual behavior substitution is intended.
 
 ## Contracts and evidence
 
@@ -166,7 +201,10 @@ A timeout does not establish that the remote operation had no effect. [Microsoft
 
 | Term | Working definition |
 |---|---|
-| Harness | Prepares, drives, and observes an experiment. |
+| Harness | Surrounding machinery that prepares, drives, and observes execution. Qualify the term: a test harness, benchmark harness, and agent harness serve different purposes. |
+| Test harness | Arranges test conditions, drives the system under test, and collects results for evaluation. The test oracle determines whether those results are acceptable. |
+| Benchmark harness | Generates a defined workload and records measurements under stated environmental conditions. Measurement does not establish correctness by itself. |
+| Agent harness | Runs the interaction loop around a model, managing relevant context, tool execution, state, and execution controls. Its responsibilities and guarantees must be specified. |
 | Workload | Operation mix, size, arrival pattern, concurrency, duration, and other conditions of demand. |
 | Benchmark | Performance measurement under a defined workload and environment. |
 | Load test | Examination under specified or expected demand. |
@@ -182,6 +220,8 @@ A timeout does not establish that the remote operation had no effect. [Microsoft
 | Measurement population | The operations or observations included in a metric, including success and failure handling and the measurement window. Percentiles need this context. |
 
 Choose a workload model that reflects the question being measured. [Grafana k6 workload models](https://grafana.com/docs/k6/latest/using-k6/scenarios/concepts/open-vs-closed/).
+
+These harnesses can work together: an agent harness might invoke a benchmark harness that exercises an importer through an emulator. The harness is distinct from the model it calls and from the environment where tools execute. [Anthropic's managed-agent architecture](https://www.anthropic.com/engineering/managed-agents) gives a concrete example of these responsibilities.
 
 ## Requirements and decision ownership
 
