@@ -69,7 +69,7 @@ def home(config, published):
     return f'''<main id="main"><section class="hero"><div class="hero-copy"><p class="series-note">A series by Kurt Mitchell</p><h1>Engineering<br>at AI Speed</h1><p class="hero-thesis">Implementation became cheap<br>before alignment did.</p><p class="hero-description">AI compresses the distance between an idea and its implementation. This series explores the engineering discipline that makes that speed useful.</p><div class="hero-actions"><a class="button" href="ep0.html">Start with the prologue</a>{latest_link}</div><p class="release-note">A prologue and eight focused episodes. Released one at a time.</p></div><figure class="hero-figure"><img src="assets/interpretation.svg" alt="One ambiguous request branches into two internally reasonable implementations: a searchable catalog and an authoritative registry."><figcaption>The disagreement existed before the code.</figcaption></figure></section>
 <section class="premise"><p>Some friction was carrying information.</p><div>Clarification. Failure analysis. Architectural decisions. As implementation gets faster, we need to make that work more deliberate—and bring it forward.</div></section>
 <section id="episodes" class="episodes"><div class="section-heading"><h2>The first season</h2><p>One engineering problem at a time.</p></div><div class="episode-grid">{''.join(cards)}</div></section>
-<section class="field-note"><div><h2>Keep the language close.</h2><p>A companion field guide distinguishes established terminology from the vocabulary we use inside a project.</p></div><a class="button secondary" href="reference.html">Open the field guide</a></section></main>'''
+<section class="field-note"><div><h2>Vocabulary for AI-era engineering.</h2><p>A companion field guide distinguishes established terms from project-local meanings across APIs, integration, requirements, architecture, and review.</p></div><a class="button secondary" href="reference.html">Open the field guide</a></section></main>'''
 
 
 def build():
@@ -94,7 +94,7 @@ def build():
     for ep in published:
         name = f"ep{ep['number']}.html"
         pages[name] = page(config, ep["title"], ep["description"], name, article(config, ep, sources[ep["number"]], published), ep["color"])
-    for stem, title, desc in [("about", "About the series", config["description"]), ("reference", "The integration field guide", "Definitions, distinctions, and project-local vocabulary for integration work.")]:
+    for stem, title, desc in [("about", "About the series", config["description"]), ("reference", "The Vocabulary of AI-Era Engineering: A Field Guide", "Definitions and distinctions for AI-era APIs, integration, requirements, architecture, verification, and review.")]:
         body, _ = render((ROOT / f"content/{stem}.md").read_text(encoding="utf-8"))
         pages[f"{stem}.html"] = page(config, title, desc, f"{stem}.html", f'<main id="main" class="standalone"><h1>{title}</h1><article class="prose">{body}</article></main>')
     pages["404.html"] = page(config, "Page not found", "Return to the series.", "404.html", f'<main id="main" class="standalone"><h1>This page isn’t here.</h1><p>The episode may not have been released yet.</p><a class="button" href="{config["url"]}">Return to the series</a></main>').replace('href="assets/', f'href="{config["url"]}assets/')
