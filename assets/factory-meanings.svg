@@ -1,8 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="470" viewBox="0 0 420 470" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="350" viewBox="0 0 800 350" role="img" aria-labelledby="title desc">
   <title id="title">What can factory mean?</title>
-  <desc id="desc">Factory branches into an object factory that constructs configured instances, an AI software factory that produces verified software artifacts under this guide's working definition, and an AI infrastructure factory that supports AI workloads at scale.</desc>
-  <rect width="420" height="470" rx="8" fill="#172235"/>
-  <g fill="none" stroke="#bdc8d8" stroke-width="2"><path d="M210 80V100H24V395H48M24 175H48M24 285H48"/></g>
-  <g fill="#24364e" stroke-width="1.5"><rect x="20" y="20" width="380" height="60" rx="6" stroke="#bdc8d8"/><rect x="48" y="125" width="352" height="100" rx="6" stroke="#60a5fa"/><rect x="48" y="235" width="352" height="100" rx="6" stroke="#5eead4"/><rect x="48" y="345" width="352" height="100" rx="6" stroke="#c4b5fd"/></g>
-  <g font-family="Segoe UI,Arial,sans-serif"><text x="210" y="59" text-anchor="middle" fill="#f3f4f6" font-size="26" font-weight="600">Factory</text><g font-size="21" font-weight="600"><text x="68" y="157" fill="#60a5fa">Object factory</text><text x="68" y="267" fill="#5eead4">AI software factory</text><text x="68" y="377" fill="#c4b5fd">AI infrastructure factory</text></g><g fill="#f3f4f6" font-size="17"><text x="68" y="185">Construct configured instances.</text><text x="68" y="209">Example: an API client or agent.</text><text x="68" y="295">Produce verified software artifacts.</text><text x="68" y="319">Working meaning in this guide.</text><text x="68" y="405">Support AI workloads at scale.</text><text x="68" y="429">Compute, networking, and software.</text></g></g>
+  <desc id="desc">Factory can mean an object factory that constructs configured instances, an AI software factory that produces verified software artifacts under this guide's working definition, or an AI infrastructure factory that supports AI workloads at scale.</desc>
+  <rect width="800" height="350" rx="8" fill="#172235"/>
+  <g fill="#24364e" stroke-width="1.5">
+    <rect x="305" y="20" width="190" height="75" rx="6" stroke="#fbbf24"/>
+    <rect x="30" y="150" width="190" height="100" rx="6" stroke="#60a5fa"/>
+    <rect x="305" y="150" width="190" height="100" rx="6" stroke="#5eead4"/>
+    <rect x="580" y="150" width="190" height="100" rx="6" stroke="#c4b5fd"/>
+  </g>
+  <g stroke="#bdc8d8" stroke-width="2" fill="none">
+    <path d="M400 96V123H125V148M400 123V148M400 123H675V148"/>
+    <path d="M125 148L118 139M125 148L132 139M400 148L393 139M400 148L407 139M675 148L668 139M675 148L682 139"/>
+  </g>
+  <g font-family="Segoe UI,Arial,sans-serif" text-anchor="middle">
+    <g fill="#f3f4f6">
+      <text x="400" y="53" font-size="24" font-weight="600">Factory</text>
+      <text x="125" y="186" font-size="20" font-weight="600">Object factory</text>
+      <text x="400" y="184" font-size="20" font-weight="600">AI software</text>
+      <text x="400" y="207" font-size="20" font-weight="600">factory</text>
+      <text x="675" y="184" font-size="19" font-weight="600">AI infrastructure</text>
+      <text x="675" y="207" font-size="19" font-weight="600">factory</text>
+    </g>
+    <g fill="#bdc8d8" font-size="16">
+      <text x="400" y="79">What does it produce?</text>
+      <text x="125" y="214">Configured instances</text>
+      <text x="125" y="236">Clients, agents, worlds</text>
+      <text x="400" y="235">Verified software</text>
+      <text x="675" y="235">AI workloads at scale</text>
+      <text x="400" y="308">Same name, different outputs and responsibilities.</text>
+    </g>
+  </g>
 </svg>
