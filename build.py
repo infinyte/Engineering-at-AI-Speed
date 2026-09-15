@@ -51,7 +51,7 @@ def article(config, episode, source, published):
             target = published[adjacent]
             neighbors.append(f'<a href="ep{target["number"]}.html"><span>{text} · {label(target)}</span>{escape(target["title"])}</a>')
     if position == len(published) - 1:
-        neighbors.append('<a href="index.html#episodes"><span>Continue the series</span>See what’s coming next</a>')
+        neighbors.append('<a href="index.html#episodes"><span>Explore the series</span>Return to all episodes</a>')
     return f'''<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">{label(episode)}</p><h1>{escape(episode['title'])}</h1><p class="dek">{escape(episode['description'])}</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="{episode['date']}">{date.fromisoformat(episode['date']).strftime('%B %d, %Y')}</time> <span>·</span> {minutes} min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p>{toc}</aside><article class="prose">{body}<nav class="episode-navigation" aria-label="Episode navigation">{''.join(neighbors)}</nav></article></div></main>'''
 
 

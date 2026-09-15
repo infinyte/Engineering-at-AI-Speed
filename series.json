@@ -11,7 +11,7 @@
     {"number": 4, "title": "“Implement This” Is Not a Requirement", "description": "Turn an outcome into scope, constraints, failure behavior, and acceptance criteria.", "file": "articles/04-requirements.md", "status": "published", "date": "2026-09-15", "color": "#fbbf24"},
     {"number": 5, "title": "Two Correct Implementations of Two Different Ideas", "description": "How reasonable interpretations collide at the integration boundary.", "file": "articles/05-divergence.md", "status": "published", "date": "2026-09-15", "color": "#fda4af"},
     {"number": 6, "title": "When Everyone Can Implement, Who Owns the Architecture?", "description": "Decision rights and shared responsibility when more people can change the system.", "file": "articles/06-ownership.md", "status": "published", "date": "2026-09-15", "color": "#5eead4"},
-    {"number": 7, "title": "Architecture Has to Become Executable", "description": "Make decisions visible in contracts, invariants, tests, and agent instructions.", "file": "articles/07-executable-architecture.md", "status": "planned", "date": "", "color": "#c4b5fd"},
-    {"number": 8, "title": "Review Starts Before Generation", "description": "Specify, constrain, generate in bounded increments, and verify the evidence.", "file": "articles/08-review.md", "status": "planned", "date": "", "color": "#60a5fa"}
+    {"number": 7, "title": "Architecture Has to Become Executable", "description": "Make decisions visible in contracts, invariants, tests, and agent instructions.", "file": "articles/07-executable-architecture.md", "status": "published", "date": "2026-09-15", "color": "#c4b5fd"},
+    {"number": 8, "title": "Review Starts Before Generation", "description": "Specify, constrain, generate in bounded increments, and verify the evidence.", "file": "articles/08-review.md", "status": "published", "date": "2026-09-15", "color": "#60a5fa"}
   ]
 }
