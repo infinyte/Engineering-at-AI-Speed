@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Correct Implementations of Two Different Ideas | Engineering at AI Speed</title><meta name="description" content="How reasonable interpretations collide at the integration boundary.">
+<link rel="canonical" href="https://infinyte.github.io/Engineering-at-AI-Speed/ep5.html"><meta property="og:title" content="Two Correct Implementations of Two Different Ideas">
+<meta property="og:description" content="How reasonable interpretations collide at the integration boundary."><meta property="og:type" content="article">
+<meta property="og:url" content="https://infinyte.github.io/Engineering-at-AI-Speed/ep5.html"><meta property="og:image" content="https://infinyte.github.io/Engineering-at-AI-Speed/assets/social-cover.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta property="og:image:alt" content="Engineering at AI Speed. Implementation became cheap before alignment did.">
+<meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="Engineering at AI Speed" href="feed.xml"><link rel="stylesheet" href="assets/style.css">
+</head><body style="--episode-accent:#fda4af"><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
+<nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
+<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">Episode 05</p><h1>Two Correct Implementations of Two Different Ideas</h1><p class="dek">How reasonable interpretations collide at the integration boundary.</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="2026-09-15">September 15, 2026</time> <span>·</span> 7 min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p><a href="#the-interface-matched-the-meaning-didn-t">The Interface Matched. The Meaning Didn’t.</a><a href="#local-evidence-has-a-boundary">Local Evidence Has a Boundary</a><a href="#start-with-the-collision">Start With the Collision</a><a href="#write-an-agreement-at-the-boundary">Write an Agreement at the Boundary</a><a href="#share-examples-then-verify-both-sides">Share Examples, Then Verify Both Sides</a><a href="#integrate-before-the-interpretation-spreads">Integrate Before the Interpretation Spreads</a><a href="#investigate-disagreement-without-assigning-it-to-the-wrong-layer">Investigate Disagreement Without Assigning It to the Wrong Layer</a><a href="#ask-the-question-at-the-join">Ask the Question at the Join</a></aside><article class="prose"><p><em>Engineering at AI Speed · Episode 5</em></p>
+<p><strong>Two passing test suites can conceal a disagreement about the system they are supposed to build together.</strong></p>
+<p>Imagine two people building parts of the same inventory application.</p>
+<p>One is responsible for ingesting product listings from retailers. The other is building the search experience. Both use AI agents. Both work from requirements that sound reasonable.</p>
+<p>The ingestion component preserves each retailer’s product identifier. The search component stores products using a field called <code>productId</code> as its unique key.</p>
+<p>Each implementation passes its tests.</p>
+<p>Then they connect the components.</p>
+<p>Retailer North has a product numbered 417. Retailer South also has a product numbered 417. They are different products.</p>
+<p>The search component treats the second record as an update to the first.</p>
+<p>Nothing about the identifier’s format was invalid. The components disagreed about its scope.</p>
+<p>Relative to their separate assumptions, both implementations were locally correct. The combined system was wrong.</p>
+<h2 id="the-interface-matched-the-meaning-didn-t">The Interface Matched. The Meaning Didn’t.</h2>
+<p>Suppose both sides agreed on a message containing <code>retailerId</code>, <code>productId</code>, and <code>name</code>, all strings.</p>
+<p>That agreement settles part of the interface. It does not establish whether <code>productId</code> is globally unique, unique within a retailer, or a reference to some canonical product maintained elsewhere.</p>
+<p>The ingestion developer reads it as a source identifier. The search developer reads it as an application identity.</p>
+<p>Both can point to the same schema.</p>
+<p>This is the uncomfortable part of integration: matching field names and types can coexist with incompatible interpretations.</p>
+<p>Schemas are valuable. They make structural rules explicit. Their descriptions and constraints can capture more meaning too. But a structurally valid message does not, by itself, prove that both sides understand the business concept the same way.</p>
+<p>Someone has to establish what the values mean and how consumers may use them.</p>
+<h2 id="local-evidence-has-a-boundary">Local Evidence Has a Boundary</h2>
+<p>The ingestion tests may correctly establish that every source record preserves its retailer and product identifiers.</p>
+<p>The search tests may correctly establish that a repeated <code>productId</code> updates an existing search record.</p>
+<p>Those tests answer different questions.</p>
+<p>If the search fixtures happen to contain globally distinct product identifiers, they never challenge the assumption that matters. If the ingestion tests stop at serialization, they never observe what the consumer does with those identifiers.</p>
+<p>The tests can be well written and still leave the shared meaning untested.</p>
+<p>AI makes this problem easier to scale. Separate agents can generate producers, consumers, fixtures, and tests from separate interpretations. Each produces a coherent little universe.</p>
+<p>Integration is where those universes discover they have different laws of physics.</p>
+<h2 id="start-with-the-collision">Start With the Collision</h2>
+<p>In the example, the first useful shared test is not a large load run. It is two records:</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Retailer</th><th scope="col">Source product ID</th><th scope="col">Product</th></tr></thead><tbody><tr><td>North</td><td>417</td><td>Cedar Mint</td></tr><tr><td>South</td><td>417</td><td>Harbor Citrus</td></tr></tbody></table></div>
+<p>What should search contain after both records are ingested?</p>
+<p>If the intended collection represents retailer listings, the answer is two distinct listings. A repeated local identifier across retailers must not merge them.</p>
+<p>Now send an updated record for North’s 417. That should update North’s listing while leaving South’s listing intact.</p>
+<p>Those examples reveal the identity boundary more effectively than “support multiple retailers.”</p>
+<p>They also expose the next question: does a source identifier remain stable over the listing’s lifetime? If the provider can reuse an identifier for a different entity, retailer plus source ID may not be sufficient. Investigate that behavior instead of assuming the example has solved every identity problem.</p>
+<p>One precise case gives the team a place to begin.</p>
+<h2 id="write-an-agreement-at-the-boundary">Write an Agreement at the Boundary</h2>
+<p>The producer and consumer need a shared account of the information crossing between them.</p>
+<p>For this illustrative system, that agreement might be:</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Concern</th><th scope="col">Shared meaning</th></tr></thead><tbody><tr><td>Entity</td><td>A retailer listing, not a canonical product shared across retailers.</td></tr><tr><td>Identity scope</td><td>A source listing identifier is scoped to its retailer. The receiving system must preserve that scope.</td></tr><tr><td>Repeated identity</td><td>A later accepted record for the same listing updates that listing under the agreed ordering rule.</td></tr><tr><td>Cross-retailer matching</td><td>Matching similar listings to a canonical product is a separate capability.</td></tr><tr><td>Missing listing</td><td>Absence from one response does not establish deletion. Removal requires an explicit source signal or a separately defined complete-inventory rule.</td></tr><tr><td>Provenance</td><td>Preserve the source retailer and source identifier so a result can be traced back.</td></tr><tr><td>Unresolved behavior</td><td>Confirm identifier reuse and update-ordering behavior before relying on them.</td></tr></tbody></table></div>
+<p>This is broader than the shape of a message, but it does not need to describe the whole application.</p>
+<p>It records the assumptions that have to agree at this boundary.</p>
+<p>Names can help. <code>sourceProductId</code> communicates more than <code>productId</code> in this case. But a clearer name still needs a definition. Renaming the field without changing the consumer’s identity logic would leave the defect intact.</p>
+<h2 id="share-examples-then-verify-both-sides">Share Examples, Then Verify Both Sides</h2>
+<p>Once the meaning is agreed, connect it to executable checks.</p>
+<p>The producer must emit identifiers with the required source context. The consumer must preserve distinct listings. A narrow integrated exercise should demonstrate the result when both components run together.</p>
+<p>Contract testing can help establish that the messages a consumer needs are supported by its provider. In consumer-driven approaches such as Pact, provider verification is part of that evidence; a consumer passing against its own double is not enough. <a href="https://docs.pact.io/">Pact: Introduction to contract testing</a>.</p>
+<p>The chosen tests still need to express the relevant assumptions. A contract example using only one retailer will not automatically expose a collision across retailers. Nor does verifying message compatibility establish every downstream business outcome.</p>
+<p>Use contract checks for the interaction and targeted integration checks for the behavior that spans the components.</p>
+<p>The evidence should follow the claim.</p>
+<h2 id="integrate-before-the-interpretation-spreads">Integrate Before the Interpretation Spreads</h2>
+<p>Imagine discovering the collision after the search key has been reused in saved searches, reporting tables, caches, and user-facing links.</p>
+<p>The original disagreement was small. Its consequences are now distributed throughout the application.</p>
+<p>An adapter might help translate between representations. It cannot recover a distinction that was discarded unless some other evidence preserves it.</p>
+<p>That is why a thin vertical slice matters: send a small, deliberately challenging example through the real path before expanding the feature.</p>
+<p>For the listing system, that path might be source response, ingestion, persistence, search indexing, and a query that returns the two intended results.</p>
+<p>This does not require production scale. It requires enough integration to expose the assumption.</p>
+<p>Ask for that evidence before asking the agents to implement every filter, report, and endpoint that depends on the identity model.</p>
+<h2 id="investigate-disagreement-without-assigning-it-to-the-wrong-layer">Investigate Disagreement Without Assigning It to the Wrong Layer</h2>
+<p>When two implementations collide, resist the immediate urge to patch whichever component is easier to change.</p>
+<p>First, write down what each side believes. Then identify the business behavior the combined system must preserve.</p>
+<p>If one interpretation violates an existing agreement, repair that implementation and add evidence that catches the violation.</p>
+<p>If there was no agreement, make the decision explicit before treating either side as authoritative. Assess the records, interfaces, and consumers already affected. A compatibility layer or migration may be needed once the interpretation has escaped into persisted data.</p>
+<p>The objective is a coherent system. Defending the first implementation to reach the repository will not necessarily get you one.</p>
+<h2 id="ask-the-question-at-the-join">Ask the Question at the Join</h2>
+<p>Before two independently developed components meet, ask both implementers to describe the same boundary example.</p>
+<p>What entity is this? What identifies it? What does a repeated message mean? What does absence mean? Which ordering assumptions are safe? Who owns correcting a conflict?</p>
+<p>Compare the answers while they are still short enough to read together.</p>
+<p>Then preserve the agreed examples in tests that exercise the appropriate boundaries. Make them available to every agent working on either side.</p>
+<p>Two implementations agreeing with themselves is a start. A working integration requires agreement about the things they share.</p>
+<p>The next episode asks who is responsible for establishing that agreement when implementation is available to everyone on the team.</p><nav class="episode-navigation" aria-label="Episode navigation"><a href="ep4.html"><span>Previous · Episode 04</span>“Implement This” Is Not a Requirement</a><a href="ep6.html"><span>Next · Episode 06</span>When Everyone Can Implement, Who Owns the Architecture?</a></nav></article></div></main>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© 2026 Kurt Mitchell</span></div></footer>
+</body></html>

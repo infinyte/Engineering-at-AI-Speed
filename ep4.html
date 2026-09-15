@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>“Implement This” Is Not a Requirement | Engineering at AI Speed</title><meta name="description" content="Turn an outcome into scope, constraints, failure behavior, and acceptance criteria.">
+<link rel="canonical" href="https://infinyte.github.io/Engineering-at-AI-Speed/ep4.html"><meta property="og:title" content="“Implement This” Is Not a Requirement">
+<meta property="og:description" content="Turn an outcome into scope, constraints, failure behavior, and acceptance criteria."><meta property="og:type" content="article">
+<meta property="og:url" content="https://infinyte.github.io/Engineering-at-AI-Speed/ep4.html"><meta property="og:image" content="https://infinyte.github.io/Engineering-at-AI-Speed/assets/social-cover.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta property="og:image:alt" content="Engineering at AI Speed. Implementation became cheap before alignment did.">
+<meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="Engineering at AI Speed" href="feed.xml"><link rel="stylesheet" href="assets/style.css">
+</head><body style="--episode-accent:#fbbf24"><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
+<nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
+<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">Episode 04</p><h1>“Implement This” Is Not a Requirement</h1><p class="dek">Turn an outcome into scope, constraints, failure behavior, and acceptance criteria.</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="2026-09-15">September 15, 2026</time> <span>·</span> 7 min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p><a href="#the-agent-has-to-fill-the-gaps-somehow">The Agent Has to Fill the Gaps Somehow</a><a href="#begin-with-the-outcome">Begin With the Outcome</a><a href="#make-the-boundary-smaller-than-the-ambition">Make the Boundary Smaller Than the Ambition</a><a href="#supply-examples-that-force-a-decision">Supply Examples That Force a Decision</a><a href="#write-a-brief-someone-can-implement">Write a Brief Someone Can Implement</a><a href="#unknown-is-a-useful-status">Unknown Is a Useful Status</a><a href="#test-the-requirement-s-meaning">Test the Requirement’s Meaning</a><a href="#stop-when-the-request-is-implementable">Stop When the Request Is Implementable</a></aside><article class="prose"><p><em>Engineering at AI Speed · Episode 4</em></p>
+<p><strong>An instruction starts the work. A requirement explains what the work must accomplish.</strong></p>
+<p>Imagine an import job that occasionally stops when its upstream API becomes unavailable.</p>
+<p>Someone opens a ticket: “Add retries so the import doesn’t fail.”</p>
+<p>An AI agent wraps the operation in retry logic. It adds a delay, tries several times, and writes a test that fails twice before succeeding.</p>
+<p>The test passes. The ticket looks done.</p>
+<p>Then the questions arrive.</p>
+<p>Which failures should trigger another attempt? Are we retrying a page request or the entire import? What if the user cancels while the job is waiting? How long should the application keep trying? What does the user see when recovery fails?</p>
+<p>“Add retries” supplied a mechanism. “So the import doesn’t fail” supplied a wish.</p>
+<p>The requirement is still missing.</p>
+<h2 id="the-agent-has-to-fill-the-gaps-somehow">The Agent Has to Fill the Gaps Somehow</h2>
+<p>Every implementation contains decisions that were not individually dictated by the requester. That is normal. We hire engineers partly because we want them to exercise judgment.</p>
+<p>AI agents exercise a kind of interpretive discretion too: they select patterns, infer boundaries, and choose defaults from the request and available context.</p>
+<p>The trouble begins when a consequential decision looks like an ordinary implementation detail.</p>
+<p>Retrying a failed read is different from repeating a workflow that has already saved records or emitted notifications. A timeout also does not prove that a remote operation had no effect. Microsoft’s retry guidance explicitly calls out idempotency and the possibility that an operation succeeded while its response failed to arrive. <a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry">Microsoft: Retry pattern</a>.</p>
+<p>The agent needs enough context to recognize which decisions it can safely make and which depend on business intent or system guarantees.</p>
+<p>“Use best practices” will not supply that context.</p>
+<h2 id="begin-with-the-outcome">Begin With the Outcome</h2>
+<p>For the importer, the outcome might be:</p>
+<blockquote><p>A brief interruption while retrieving an inventory page should not force an operator to restart the entire import. If retrieval cannot recover within a bounded period, preserve completed work and report where the import stopped.</p></blockquote>
+<p>That gives us something to design toward.</p>
+<p>It identifies the affected operation, explains the operational problem, and acknowledges that recovery has a limit.</p>
+<p>It also changes the conversation. We can now discuss what “brief,” “completed,” and “where it stopped” mean in this application.</p>
+<p>A requirement becomes useful when those questions can produce decisions rather than more adjectives.</p>
+<p>“Reliable,” “robust,” “scalable,” and “production-ready” can express aspirations. They become acceptance criteria only when we connect them to observable behavior.</p>
+<h2 id="make-the-boundary-smaller-than-the-ambition">Make the Boundary Smaller Than the Ambition</h2>
+<p>“Improve import reliability” could reasonably lead to changes in retry policies, checkpoint storage, reconciliation, logging, scheduling, and user notifications.</p>
+<p>That might be a program of work. It is a poor boundary for one implementation task.</p>
+<p>For this illustrative change, we can limit the task to recovery around a page-retrieval operation. We can preserve the existing destination-write and checkpoint behavior, while requiring the agent to flag any reason those mechanisms prevent the requested outcome.</p>
+<p>That last clause matters. Scope is not an instruction to ignore a dependency that makes the task impossible.</p>
+<p>It is an instruction to make the dependency visible before expanding the change.</p>
+<p>The same distinction applies to exclusions. If this task does not redesign authentication, then an authentication failure should not become an invitation to invent credential-refresh behavior.</p>
+<h2 id="supply-examples-that-force-a-decision">Supply Examples That Force a Decision</h2>
+<p>Examples are useful because they make vague agreement uncomfortable.</p>
+<p>Consider four cases:</p>
+<ul><li>A page request fails with a designated temporary error, then succeeds. Continue the same import without repeating completed destination work.</li><li>The same request keeps failing. Stop when the agreed retry budget is exhausted and report an incomplete import.</li><li>The provider rejects the credentials. Surface the authentication problem instead of repeatedly making the same request under this policy.</li><li>The operator cancels during a retry delay. Stop scheduling further attempts and retain the existing cancellation semantics.</li></ul>
+<p>These examples do not prescribe a class hierarchy or a library. They constrain behavior.</p>
+<p>Counterexamples help too. “A completed page is imported twice because the retry wraps the entire job” makes an unwanted interpretation explicit.</p>
+<p>A small collection of examples can reveal more disagreement than a paragraph promising comprehensive resilience.</p>
+<h2 id="write-a-brief-someone-can-implement">Write a Brief Someone Can Implement</h2>
+<p>Here is a compact brief for the example. Its numeric limits are illustrative decisions for this scenario, not universal retry recommendations.</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Part of the brief</th><th scope="col">Agreed direction</th></tr></thead><tbody><tr><td>Outcome</td><td>Recover from short interruptions during inventory page retrieval without requiring a full manual restart.</td></tr><tr><td>Scope</td><td>The existing page-retrieval operation and its recovery reporting. Preserve destination-write and checkpoint semantics.</td></tr><tr><td>Eligible failures</td><td>For this exercise, retry connection failures, timeouts, and HTTP 503 from this read operation. Other failures follow existing handling. Validate this classification against the actual provider before adopting it.</td></tr><tr><td>Limits</td><td>At most three total attempts, including the first, within a 30-second operation budget. Timeouts and delays must fit within that budget.</td></tr><tr><td>Delay policy</td><td>Use the existing bounded backoff policy if present. If absent, propose the delay values before implementation.</td></tr><tr><td>Failure outcome</td><td>Preserve completed work, mark the import incomplete, and identify the page or cursor where retrieval stopped.</td></tr><tr><td>Cancellation</td><td>Cancellation prevents further attempts; preserve the application’s existing cancellation behavior.</td></tr><tr><td>Evidence</td><td>Demonstrate temporary recovery, exhausted budget, an ineligible failure, and cancellation during the wait. Verify that completed destination work is not repeated.</td></tr><tr><td>Escalation</td><td>Surface incompatible existing retries, unsafe repeated operations, or checkpoint limitations before broadening scope.</td></tr></tbody></table></div>
+<p>The brief leaves room for engineering judgment. It does not specify method names, private helper functions, or how to organize every test.</p>
+<p>It specifies the decisions that determine whether the feature means what the requester intended.</p>
+<h2 id="unknown-is-a-useful-status">Unknown Is a Useful Status</h2>
+<p>Sometimes the answer is genuinely unknown. Perhaps nobody has characterized the provider’s error behavior. Perhaps the client library already retries, but the team has not inspected its configuration.</p>
+<p>Write that down.</p>
+<p>Then make investigation the next bounded task: inspect the existing policy, collect relevant evidence, and explain how it affects the proposed behavior.</p>
+<p>An unresolved question should not silently become a default because generation has begun.</p>
+<p>There is an important distinction between asking the agent to investigate an unknown and asking it to decide an unanswered business question. It can inspect how cancellation works. It cannot infer, with authority, how much delay an operator is willing to tolerate.</p>
+<p>The request should make that distinction visible.</p>
+<h2 id="test-the-requirement-s-meaning">Test the Requirement’s Meaning</h2>
+<p>A test that verifies “the retry method was called three times” checks one implementation detail.</p>
+<p>The requirement asks whether a temporary interruption can be recovered from, whether work is preserved, and whether the system stops under the right conditions.</p>
+<p>Tests should provide evidence for those outcomes.</p>
+<p>For implementation work, start with meaningful failing tests derived from the agreed examples. Then implement until the intended behavior passes. A failure because a method is missing is different from evidence that the system currently mishandles the scenario; choose the level of testing that makes that distinction useful.</p>
+<p>Have someone review the examples as well as the code. An agent can generate both from the same mistaken interpretation.</p>
+<h2 id="stop-when-the-request-is-implementable">Stop When the Request Is Implementable</h2>
+<p>The brief does not need to anticipate every future use of the importer.</p>
+<p>It needs enough detail to distinguish acceptable outcomes from plausible but unwanted ones, and enough boundaries to identify when a new decision is required.</p>
+<p>A useful readiness question is: could two capable implementers read this brief and disagree about what success looks like?</p>
+<p>They may choose different internal structures. That is fine. If they disagree about which failures are retried, whether completed work can repeat, or what cancellation means, the requirement still needs attention.</p>
+<p>“Implement this” becomes a useful instruction when “this” has acquired an outcome, a boundary, examples, and evidence.</p>
+<p>The next episode examines what happens when two teams each have a coherent interpretation—and their systems meet at an interface that never captured the disagreement.</p><nav class="episode-navigation" aria-label="Episode navigation"><a href="ep3.html"><span>Previous · Episode 03</span>The Friction We Lost</a><a href="ep5.html"><span>Next · Episode 05</span>Two Correct Implementations of Two Different Ideas</a></nav></article></div></main>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© 2026 Kurt Mitchell</span></div></footer>
+</body></html>

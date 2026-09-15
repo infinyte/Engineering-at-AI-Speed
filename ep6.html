@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When Everyone Can Implement, Who Owns the Architecture? | Engineering at AI Speed</title><meta name="description" content="Decision rights and shared responsibility when more people can change the system.">
+<link rel="canonical" href="https://infinyte.github.io/Engineering-at-AI-Speed/ep6.html"><meta property="og:title" content="When Everyone Can Implement, Who Owns the Architecture?">
+<meta property="og:description" content="Decision rights and shared responsibility when more people can change the system."><meta property="og:type" content="article">
+<meta property="og:url" content="https://infinyte.github.io/Engineering-at-AI-Speed/ep6.html"><meta property="og:image" content="https://infinyte.github.io/Engineering-at-AI-Speed/assets/social-cover.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta property="og:image:alt" content="Engineering at AI Speed. Implementation became cheap before alignment did.">
+<meta name="theme-color" content="#111827"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="Engineering at AI Speed" href="feed.xml"><link rel="stylesheet" href="assets/style.css">
+</head><body style="--episode-accent:#5eead4"><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Engineering at AI Speed<span>by Kurt Mitchell</span></a>
+<nav aria-label="Main navigation"><a href="index.html#episodes">The series</a><a href="reference.html">Field guide</a><a href="about.html">About</a><a href="feed.xml">RSS</a></nav></header>
+<main id="main"><section class="article-hero"><a class="back" href="index.html#episodes">All episodes</a><p class="episode-label">Episode 06</p><h1>When Everyone Can Implement, Who Owns the Architecture?</h1><p class="dek">Decision rights and shared responsibility when more people can change the system.</p><p class="byline">Kurt Mitchell <span>·</span> <time datetime="2026-09-15">September 15, 2026</time> <span>·</span> 7 min read</p></section><div class="article-layout"><aside class="toc" aria-label="On this page"><p>In this article</p><a href="#implementation-used-to-contain-an-informal-checkpoint">Implementation Used to Contain an Informal Checkpoint</a><a href="#authorship-does-not-settle-ownership">Authorship Does Not Settle Ownership</a><a href="#assign-ownership-to-decisions">Assign Ownership to Decisions</a><a href="#ownership-must-be-available">Ownership Must Be Available</a><a href="#make-architectural-knowledge-accessible">Make Architectural Knowledge Accessible</a><a href="#give-exploration-room-without-losing-its-status">Give Exploration Room Without Losing Its Status</a><a href="#handover-includes-consequences">Handover Includes Consequences</a><a href="#accountability-should-support-participation">Accountability Should Support Participation</a></aside><article class="prose"><p><em>Engineering at AI Speed · Episode 6</em></p>
+<p><strong>The ability to create a change has expanded. Responsibility for its consequences still needs an owner.</strong></p>
+<p>Imagine a product owner using an AI agent to improve a product-search workflow.</p>
+<p>The prototype works. It imports sample records, removes what appear to be duplicates, and presents a clean search experience.</p>
+<p>At the same time, an engineer is improving ingestion from multiple retailers. That implementation deliberately preserves separate source listings because similar products are not necessarily the same entity.</p>
+<p>Both people are advancing the product. Both can generate code that runs.</p>
+<p>Then someone asks whether the search workflow should merge those listings.</p>
+<p>The product owner assumed that was obvious. The engineer assumed the existing identity rules settled it. Neither realized the other was making a decision at the same boundary.</p>
+<p>This is an illustrative example, but the organizational question is practical: when more people can implement, who has the authority and responsibility to settle the architectural consequences?</p>
+<h2 id="implementation-used-to-contain-an-informal-checkpoint">Implementation Used to Contain an Informal Checkpoint</h2>
+<p>In many teams, a person describing a business need depended on an engineer to turn it into software.</p>
+<p>That translation often included more than coding. The engineer asked questions, interpreted terminology, checked existing conventions, and noticed when a request crossed a system boundary.</p>
+<p>It was an imperfect arrangement. Useful knowledge could become concentrated in a few people. A team could mistake “the person who knows the code” for “the person who should make every decision.”</p>
+<p>Still, the dependency created an informal checkpoint. Someone with implementation context usually encountered the request before it became a repository change.</p>
+<p>AI allows more people to move past that checkpoint. A product owner can build a prototype. An analyst can automate a recurring task. A designer can implement an interaction and test whether it communicates the intended behavior.</p>
+<p>Those are valuable capabilities. The translation work remains necessary, but we can no longer assume it will happen simply because coding passes through a particular person.</p>
+<h2 id="authorship-does-not-settle-ownership">Authorship Does Not Settle Ownership</h2>
+<p>The person who writes a change is not automatically the right person to decide every consequence of that change.</p>
+<p>That was true before AI. A senior engineer can misunderstand a business rule. A product owner can understand an operational consequence that never appears in the code. A support specialist may know exactly why an apparently redundant field cannot disappear.</p>
+<p>Architectural decisions draw on different kinds of knowledge.</p>
+<p>In the listing example, product needs to explain the experience users require. Someone must understand the source data and its identity limits. Engineering must assess how a matching decision propagates through persistence, interfaces, and downstream consumers.</p>
+<p>The agent can investigate and propose options. It does not become the accountable owner because it generated the implementation.</p>
+<blockquote><p>Code authorship tells us who produced the change. Decision ownership tells us who must answer for the guarantee it changes.</p></blockquote>
+<p>The team needs both to be clear.</p>
+<h2 id="assign-ownership-to-decisions">Assign Ownership to Decisions</h2>
+<p>“Architecture belongs to the architects” is not enough guidance for a person deciding whether to merge two listings.</p>
+<p>Which decisions can they make within the existing boundaries? Which ones require input? Who can resolve a disagreement, and how quickly?</p>
+<p>A useful starting point is a small decision-rights table. The roles below are an example; one person may hold several roles in a smaller team.</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th scope="col">Decision</th><th scope="col">Accountable owner</th><th scope="col">Required input</th><th scope="col">What contributors can decide within the boundary</th></tr></thead><tbody><tr><td>User outcome and acceptance</td><td>Product owner</td><td>Engineering and affected users or operations</td><td>Implementation details that preserve the agreed outcome</td></tr><tr><td>Shared identity and data meaning</td><td>Named domain owner</td><td>Product and affected service owners</td><td>Local representations that preserve the shared definition</td></tr><tr><td>Service behavior and internal design</td><td>Service owner</td><td>Consumers when a contract or guarantee changes</td><td>Internal structure within existing contracts and constraints</td></tr><tr><td>Cross-service interface change</td><td>Named interface owner</td><td>Provider and affected consumer owners</td><td>Compatible implementation changes under the agreed contract</td></tr><tr><td>Access and data exposure</td><td>Named security or data-policy owner</td><td>Product and service owners</td><td>Changes already permitted by the established policy</td></tr><tr><td>Production release readiness</td><td>Release or service owner</td><td>Verification evidence and operational readiness</td><td>Changes within an explicitly delegated release process</td></tr></tbody></table></div>
+<p>The value is not in the table’s size. It is in whether a contributor can find the right decision-maker before the work expands.</p>
+<p>“Everyone owns it” can express a healthy sense of care. It is a poor escalation address.</p>
+<h2 id="ownership-must-be-available">Ownership Must Be Available</h2>
+<p>There is an easy way to make this model fail: appoint one architect as the mandatory approver for everything and then fill that person’s calendar.</p>
+<p>The team has replaced an informal bottleneck with a documented one.</p>
+<p>Decision owners need to publish the boundaries within which others can work. They also need a practical way to answer questions outside those boundaries, with a delegate when they are unavailable.</p>
+<p>Most changes should not require a fresh architectural verdict. A contributor should be able to improve an internal function, adjust a display, or extend a tested behavior when the relevant guarantees remain intact.</p>
+<p>The reason to involve an owner is a decision that changes or exceeds those guarantees—not the mere presence of generated code.</p>
+<p>For example: improving search ranking within an agreed listing model is different from silently merging listings into canonical products. The first may fit existing authority. The second changes the meaning of the data.</p>
+<h2 id="make-architectural-knowledge-accessible">Make Architectural Knowledge Accessible</h2>
+<p>A boundary that exists only in a senior engineer’s memory is difficult for other people to follow and impossible for an agent to reliably retrieve.</p>
+<p>Put important definitions, decisions, and constraints where contributors work. Link them from the feature brief and repository guidance. Include an owner and enough rationale to explain why the boundary exists.</p>
+<p>“Do not merge retailer listings automatically” is more useful when accompanied by the reason: similar names and package sizes do not establish shared product identity, and downstream systems depend on source-specific records remaining distinct.</p>
+<p>That explanation helps people recognize related cases. It also lets them challenge the rule intelligently when the product’s needs change.</p>
+<p>Documentation can become stale. Ownership includes keeping the decision current, recording exceptions, and retiring constraints that no longer apply.</p>
+<p>An old rule with no reachable owner can be as obstructive as having no rule at all.</p>
+<h2 id="give-exploration-room-without-losing-its-status">Give Exploration Room Without Losing Its Status</h2>
+<p>A prototype can answer a valuable question before the production design is settled.</p>
+<p>The product owner in our example might build a search experience that groups similar listings to see whether users find it helpful. That experiment does not have to wait until every identity question is resolved.</p>
+<p>But its assumptions need to be visible. Grouping sample data for a demonstration should not quietly become an authoritative merge policy in production.</p>
+<p>Keep the experiment’s purpose, data limitations, and intended lifespan clear. Before adopting it, identify which decisions need production owners and what evidence supports them.</p>
+<p>The same rule applies to engineers. Calling an experiment a technical spike does not settle the decisions it postponed.</p>
+<p>Exploration earns its value by teaching us something. Adoption requires evaluating what remains unresolved.</p>
+<h2 id="handover-includes-consequences">Handover Includes Consequences</h2>
+<p>When a contributor offers an AI-generated change for integration, the handover should explain more than which files changed.</p>
+<p>What behavior is different? Which existing guarantees does it rely on? Which assumptions were made? What evidence supports the result? Who will maintain and operate it?</p>
+<p>For the search change, that might be: the interface groups listings visually but preserves source identities, makes no canonical identity claim, and allows users to inspect the underlying listings.</p>
+<p>That statement gives reviewers something meaningful to assess. It also gives the domain owner a clear decision if the product later wants persistent merging.</p>
+<p>Ownership becomes practical when it follows a concrete consequence through the system.</p>
+<h2 id="accountability-should-support-participation">Accountability Should Support Participation</h2>
+<p>The purpose of decision ownership is to help more people contribute without forcing each person to rediscover the entire architecture.</p>
+<p>A product owner should be able to build a useful experiment. An analyst should be able to improve a workflow. An engineer should be able to act within established constraints without waiting for ceremonial permission.</p>
+<p>They all need a visible answer when a change reaches beyond those constraints.</p>
+<p>Start with the next shared decision your team encounters. Name the accountable owner, identify who must contribute, write down the boundary, and make the result available to the people and agents doing the work.</p>
+<p>Architecture remains a collaborative activity. Accountability makes that collaboration easier to navigate.</p>
+<p>As implementation becomes more widely available, we need fewer assumptions about who will happen to catch a problem—and clearer responsibility for the guarantees the system makes.</p>
+<p>In the next episode, we will turn those guarantees into constraints that can be checked: schemas, contracts, invariants, tests, and repository rules that make architectural decisions executable.</p><nav class="episode-navigation" aria-label="Episode navigation"><a href="ep5.html"><span>Previous · Episode 05</span>Two Correct Implementations of Two Different Ideas</a><a href="index.html#episodes"><span>Continue the series</span>See what’s coming next</a></nav></article></div></main>
+<footer class="site-footer"><p><strong>Engineering at AI Speed</strong><br>Better decisions before more code.</p><div><a href="https://github.com/infinyte/Engineering-at-AI-Speed">GitHub repository</a><a href="https://infinyte.github.io/Pattern-Mirror/">The Pattern Mirror</a><span>© 2026 Kurt Mitchell</span></div></footer>
+</body></html>
